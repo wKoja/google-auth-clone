@@ -1,0 +1,1 @@
+ALTER TABLE "totp_secret" ADD COLUMN "username" text;

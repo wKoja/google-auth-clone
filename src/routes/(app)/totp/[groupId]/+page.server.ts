@@ -1,7 +1,7 @@
 import type { RequestEvent } from './$types';
 import * as auth from '$lib/server/auth.js';
 import { redirect } from '@sveltejs/kit';
-import { fetchTOTPGroupById } from '$lib/server/totp';
+import { fetchTOTPSecretsByGroupId, fetchTOTPGroupById } from '$lib/server/totp';
 
 export const load = async (event: RequestEvent) => {
   const groupId: string = event.params.groupId;
@@ -13,7 +13,10 @@ export const load = async (event: RequestEvent) => {
 
   const totpGroup = await fetchTOTPGroupById(sessionToken, groupId);
 
+  const totpCodes = await fetchTOTPSecretsByGroupId(sessionToken, groupId);
+
   return {
-    totpGroup
+    totpGroup,
+    totpCodes
   };
 };

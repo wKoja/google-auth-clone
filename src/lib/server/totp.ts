@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import * as table from '$lib/server/db/schema';
 import { db } from '$lib/server/db';
 import { validateSessionToken } from './auth';
@@ -7,10 +7,11 @@ import { errorLog, infoLog } from '$lib/logger';
 
 //NOTE: private functions
 
-export async function saveTOTPSeed(
+export async function saveTOTPSecret(
   sessionToken: string | undefined,
   secret: string,
   note: string | null,
+  username: string,
   TOTPGroupId: string | null
 ) {
   if (!sessionToken) {
@@ -33,10 +34,36 @@ export async function saveTOTPSeed(
     userId: user.id,
     totpGroupId: TOTPGroupId,
     note,
+    username,
     secret
   };
 
   await db.insert(table.totpSecret).values(totpSecret);
+}
+
+export async function fetchTOTPSecretsByGroupId(
+  sessionToken: string | undefined,
+  groupId: string | null
+): Promise<table.TOTPSecret[]> {
+  if (!sessionToken) {
+    errorLog('fetchTOTPSecrets', 'session token not found');
+    return [];
+  }
+
+  const sessionInfo = await validateSessionToken(sessionToken);
+  const user = sessionInfo.user;
+
+  if (!user) {
+    errorLog('fetchTOTPSecrets', 'user not found');
+    return [];
+  }
+
+  return db
+    .select()
+    .from(table.totpSecret)
+    .where(
+      and(eq(table.totpSecret.totpGroupId, groupId || ''), eq(table.totpSecret.userId, user.id))
+    );
 }
 
 export async function saveTOTPGroup(sessionToken: string | undefined, name: string) {

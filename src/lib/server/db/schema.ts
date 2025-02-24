@@ -32,6 +32,7 @@ export const totpSecret = pgTable('totp_secret', {
 	totpGroupId: text('totp_group_id') //NOTE: a secret can only belong to one group, or no group at all
 		.references(() => totpGroup.id),
 	note: text('note'),
+	username: text('username'),
 	secret: text('secret').notNull()
 });
 
