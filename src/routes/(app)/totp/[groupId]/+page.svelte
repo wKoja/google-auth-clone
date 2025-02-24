@@ -7,13 +7,15 @@
 
 	let { data }: Props = $props();
 
-	const groupId = data.groupId
+	const groupId = data.totpGroup;
+	const groupName = data.totpGroup?.name;
 </script>
 
 <div class="flex min-h-screen flex-col items-center justify-center bg-gray-100">
-	<h1 class="text-2xl font-bold text-gray-800">Group {groupId} 2FA codes</h1>
-	<a href={`/totp/${groupId}/add`} class="rounded bg-blue-500 px-3 py-3 text-white hover:bg-blue-600"
-		>Add new code</a
+	<h1 class="text-2xl font-bold text-gray-800">{groupName} 2FA codes</h1>
+	<a
+		href={`/totp/${groupId}/add`}
+		class="rounded bg-blue-500 px-3 py-3 text-white hover:bg-blue-600">Add new code</a
 	>
 	<ul class="mt-4 w-full max-w-md">
 		<li class="mb-2">

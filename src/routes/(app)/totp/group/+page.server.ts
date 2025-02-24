@@ -1,7 +1,7 @@
-import { fail, redirect, type Actions } from "@sveltejs/kit";
+import { fail, redirect, type Actions } from '@sveltejs/kit';
 import * as auth from '$lib/server/auth.js';
-import { saveTOTPGroup } from "$lib/server/totp";
-import { errorLog, infoLog } from "$lib/logger";
+import { saveTOTPGroup } from '$lib/server/totp';
+import { errorLog, infoLog } from '$lib/logger';
 
 export const actions: Actions = {
   add: async (event) => {
@@ -10,11 +10,11 @@ export const actions: Actions = {
     const groupName = formData.get('groupName')?.toString();
 
     if (!sessionToken || !groupName) {
-      errorLog('saveTOTPGroup', 'session token or group name not found')
+      errorLog('saveTOTPGroup', 'session token or group name not found');
       return fail(400, { message: 'Invalid request' });
     }
 
-    saveTOTPGroup(sessionToken, groupName)
+    saveTOTPGroup(sessionToken, groupName);
 
     return redirect(302, '/totp');
   }

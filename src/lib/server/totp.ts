@@ -108,6 +108,24 @@ export async function fetchTOTPGroups(sessionToken: string): Promise<table.TOTPG
   return totpGroups;
 }
 
+export async function fetchTOTPGroupById(
+  sessionToken: string,
+  groupId: string
+): Promise<table.TOTPGroup | null> {
+  const sessionInfo = await validateSessionToken(sessionToken);
+  const user = sessionInfo.user;
+
+  if (!user) {
+    errorLog('fetchTOTPGroupById', 'user not found');
+    return null;
+  }
+
+  infoLog('fetchTOTPGroupById', `Fetching TOTP group ${groupId} for user ${user.id}`);
+  const [result] = await db.select().from(table.totpGroup).where(eq(table.totpGroup.id, groupId));
+
+  return result;
+}
+
 function generateId() {
   // ID with 120 bits of entropy, or about the same as UUID v4.
   const bytes = crypto.getRandomValues(new Uint8Array(15));
