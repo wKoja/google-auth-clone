@@ -4,6 +4,7 @@ import { saveTOTPSecret } from '$lib/server/totp';
 
 export const actions: Actions = {
   add: async (event) => {
+    const groupId = event.params.groupId;
     const formData = await event.request.formData();
     const sessionToken = event.cookies.get(auth.sessionCookieName);
     const secret = formData.get('secret')?.toString();
@@ -18,7 +19,7 @@ export const actions: Actions = {
       return fail(400, { message: 'Invalid request' });
     }
 
-    saveTOTPSecret(sessionToken, secret, note || null, username, null)
+    saveTOTPSecret(sessionToken, secret, note || null, username, groupId || null)
 
 
     return redirect(302, `/totp`);

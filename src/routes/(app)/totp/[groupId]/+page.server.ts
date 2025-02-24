@@ -17,6 +17,7 @@ export const load = async (event: RequestEvent) => {
 
   return {
     totpGroup,
-    totpCodes
+    totpCodes,
+    groupId
   };
 };
