@@ -6,7 +6,7 @@
   <form method="post" action="?/add" class="w-full max-w-sm mt-4">
     <label class="block mb-2">
       <span class="text-gray-700">Group name</span>
-      <input name="totp_code" class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none" />
+      <input name="groupName" class="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:outline-none" />
     </label>
     <button class="px-4 py-2 mt-4 font-semibold text-white bg-blue-500 w-full rounded hover:bg-blue-600">Add Code</button>
   </form>
