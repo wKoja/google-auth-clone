@@ -1,6 +1,5 @@
 
 <script lang="ts">
-	// Import necessary scripts/modules if needed for TOTP functionality
 </script>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
