@@ -8,6 +8,13 @@
       "when": 1740354929280,
       "tag": "0000_reflective_silver_centurion",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1740356811643,
+      "tag": "0001_green_slayback",
+      "breakpoints": true
     }
   ]
 }
