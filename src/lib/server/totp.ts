@@ -7,84 +7,110 @@ import { errorLog, infoLog } from '$lib/logger';
 
 //NOTE: private functions
 
-export async function saveTOTPSeed(sessionToken: string | undefined, secret: string, note: string | null, TOTPGroupId: string | null) {
+export async function saveTOTPSeed(
+  sessionToken: string | undefined,
+  secret: string,
+  note: string | null,
+  TOTPGroupId: string | null
+) {
   if (!sessionToken) {
-    errorLog('saveTOTPSeed', 'session token not found')
-    return
+    errorLog('saveTOTPSeed', 'session token not found');
+    return;
   }
 
-  const sessionInfo = await validateSessionToken(sessionToken)
-  const user = sessionInfo.user
+  const sessionInfo = await validateSessionToken(sessionToken);
+  const user = sessionInfo.user;
 
   if (!user) {
-    errorLog('saveTOTPSeed', 'user not found')
-    return
+    errorLog('saveTOTPSeed', 'user not found');
+    return;
   }
 
-  infoLog('saveTOTPSeed', `Saving TOTP seed for user ${user.id} in group ${TOTPGroupId}`)
+  infoLog('saveTOTPSeed', `Saving TOTP seed for user ${user.id} in group ${TOTPGroupId}`);
 
   const totpSecret: table.TOTPSecret = {
     id: generateId(),
     userId: user.id,
     totpGroupId: TOTPGroupId,
     note,
-    secret,
-  }
+    secret
+  };
 
-	await db.insert(table.totpSecret).values(totpSecret);
+  await db.insert(table.totpSecret).values(totpSecret);
 }
 
 export async function saveTOTPGroup(sessionToken: string | undefined, name: string) {
   if (!sessionToken) {
-    errorLog('saveTOTPGroup', 'session token not found')
-    return
+    errorLog('saveTOTPGroup', 'session token not found');
+    return;
   }
 
-  const sessionInfo = await validateSessionToken(sessionToken)
-  const user = sessionInfo.user
+  const sessionInfo = await validateSessionToken(sessionToken);
+  const user = sessionInfo.user;
 
   if (!user) {
-    errorLog('saveTOTPGroup', 'user not found')
-    return
+    errorLog('saveTOTPGroup', 'user not found');
+    return;
   }
 
-  infoLog('saveTOTPGroup', `Saving TOTP group for user ${user.id}`)
+  infoLog('saveTOTPGroup', `Saving TOTP group for user ${user.id}`);
 
   const totpGroup: table.TOTPGroup = {
     id: generateId(),
     userId: user.id,
     publicUserKey: null,
-    name,
-  }
+    name
+  };
 
   await db.insert(table.totpGroup).values(totpGroup);
-
 }
 
-export async function updateTOTPGroup(sessionToken: string, name: string | null, publicUserKey: string | null) {
-  const sessionInfo = await validateSessionToken(sessionToken)
-  const user = sessionInfo.user
+export async function updateTOTPGroup(
+  sessionToken: string,
+  name: string | null,
+  publicUserKey: string | null
+) {
+  const sessionInfo = await validateSessionToken(sessionToken);
+  const user = sessionInfo.user;
 
   if (!user) {
-    errorLog('updateTOTPGroup', 'user not found')
-    return
+    errorLog('updateTOTPGroup', 'user not found');
+    return;
   }
 
-  infoLog('updateTOTPGroup', `Updating TOTP group for user ${user.id}`)
-  const [result] = await db.select().from(table.totpGroup).where(eq(table.totpGroup.userId, user.id));
-  const totpGroup = result
+  infoLog('updateTOTPGroup', `Updating TOTP group for user ${user.id}`);
+  const [result] = await db
+    .select()
+    .from(table.totpGroup)
+    .where(eq(table.totpGroup.userId, user.id));
+  const totpGroup = result;
 
-  totpGroup.publicUserKey = publicUserKey || totpGroup.publicUserKey
-  totpGroup.name = name || totpGroup.name
+  totpGroup.publicUserKey = publicUserKey || totpGroup.publicUserKey;
+  totpGroup.name = name || totpGroup.name;
 
   await db.update(table.totpGroup).set(totpGroup).where(eq(table.totpGroup.userId, user.id));
-
 }
 
+export async function fetchTOTPGroups(sessionToken: string): Promise<table.TOTPGroup[]> {
+  const sessionInfo = await validateSessionToken(sessionToken);
+  const user = sessionInfo.user;
 
-function generateId(){ 
-	// ID with 120 bits of entropy, or about the same as UUID v4.
-	const bytes = crypto.getRandomValues(new Uint8Array(15));
-	const id = encodeBase32LowerCase(bytes);
-	return id;
+  if (!user) {
+    errorLog('fetchTOTPGroups', 'user not found');
+    return [];
+  }
+
+  infoLog('fetchTOTPGroups', `Fetching TOTP groups for user ${user.id}`);
+  const totpGroups = await db
+    .select()
+    .from(table.totpGroup)
+    .where(eq(table.totpGroup.userId, user.id));
+  return totpGroups;
+}
+
+function generateId() {
+  // ID with 120 bits of entropy, or about the same as UUID v4.
+  const bytes = crypto.getRandomValues(new Uint8Array(15));
+  const id = encodeBase32LowerCase(bytes);
+  return id;
 }

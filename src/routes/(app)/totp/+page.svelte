@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import type { TOTPGroup } from '$lib/server/db/schema';
 	import type { PageData } from './$types';
 
 	interface Props {
 		data: PageData;
 	}
 
-	//TODO: fetch existing gropus and list them below using each block 
-
 	let { data }: Props = $props();
+
+	const totpGroups: TOTPGroup[] = data.totpGroups;
 
 	const routeToGroup = (groupId: string) => {
 		goto(`/totp/${groupId}`);
@@ -24,21 +25,22 @@
 		<li class="mb-2">
 			<div class="flex items-center justify-between rounded-md bg-white p-4 shadow">
 				<span class="text-gray-700">No group codes</span>
-				<button onclick={() => routeToGroup("id1")} class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Open</button>
+				<button
+					onclick={() => routeToGroup('id1')}
+					class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Open</button
+				>
 			</div>
 		</li>
-		<li class="mb-2">
-			<div class="flex items-center justify-between rounded-md bg-white p-4 shadow">
-				<span class="text-gray-700">TOTP Group #1</span>
-				<button onclick={() => routeToGroup("id2")} class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Open</button>
-			</div>
-		</li>
-		<li class="mb-2">
-			<div class="flex items-center justify-between rounded-md bg-white p-4 shadow">
-				<span class="text-gray-700">TOTP Group #2</span>
-				<button onclick={() => routeToGroup("id3")} class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Open</button>
-			</div>
-		</li>
+		{#each totpGroups as group}
+			<li class="mb-2">
+				<div class="flex items-center justify-between rounded-md bg-white p-4 shadow">
+					<span class="text-gray-700">{group.name}</span>
+					<button
+						onclick={() => routeToGroup(group.id)}
+						class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Open</button
+					>
+				</div>
+			</li>
+		{/each}
 	</ul>
 </div>
-
