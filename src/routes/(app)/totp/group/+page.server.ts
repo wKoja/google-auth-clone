@@ -1,4 +1,4 @@
-import { fail, type Actions } from "@sveltejs/kit";
+import { fail, redirect, type Actions } from "@sveltejs/kit";
 import * as auth from '$lib/server/auth.js';
 import { saveTOTPGroup } from "$lib/server/totp";
 import { errorLog, infoLog } from "$lib/logger";
@@ -16,6 +16,6 @@ export const actions: Actions = {
 
     saveTOTPGroup(sessionToken, groupName)
 
-    return { message: "Success" };
+    return redirect(302, '/totp');
   }
 };
