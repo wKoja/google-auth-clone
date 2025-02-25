@@ -45,6 +45,7 @@
     "@types/node": "^22.13.5",
     "chalk": "^5.4.1",
     "drizzle-orm": "^0.38.4",
+    "otpauth": "^9.3.6",
     "postgres": "^3.4.5"
   }
 }

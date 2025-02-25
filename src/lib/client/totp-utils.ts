@@ -1,7 +1,24 @@
-function bufferToHex(buffer: ArrayBuffer): string {
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+import * as OTPAuth from 'otpauth'
+
+const TIME_STEP = 30;
+
+export function generateTOTP(label: string | null, secret: string): OTPAuth.TOTP {
+  const totp = new OTPAuth.TOTP({
+    issuer: 'TotpAuth',
+    label: label || `TotpAuth ${Date.now()}`,
+    algorithm: 'SHA1',
+    digits: 6,
+    period: TIME_STEP,
+    secret: secret
+  });
+
+  return totp;
+}
+
+export function computeTimeLeft() {
+  const currentTime = computeNow()
+  const elapsedTime = currentTime % TIME_STEP
+  return TIME_STEP - elapsedTime
 }
 
 async function createHmac(keyData: string, data: Uint8Array): Promise<ArrayBuffer> {
@@ -34,10 +51,23 @@ function truncate(hash: ArrayBuffer): number {
   return binary;
 }
 
+
+export function computeNow() {
+  return Math.floor(Date.now() / 1000);
+}
+
+export function progressBar(seconds: number) {
+  return Math.floor((seconds / (TIME_STEP)) * 100);
+}
+
+
+export function computeCounter() {
+  const currentTime = computeNow();
+  return Math.floor(currentTime / TIME_STEP);
+}
+
 export async function computeTOTP(secret: string): Promise<string> {
-  const timeStep = 30;
-  const currentTime = Math.floor(Date.now() / 1000);
-  const counter = Math.floor(currentTime / timeStep);
+  const counter = computeCounter();
 
   const counterBytes = intToBytes(counter);
 
