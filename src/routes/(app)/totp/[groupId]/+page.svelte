@@ -10,6 +10,7 @@
 
 	interface OTPMap {
 		[key: string]: {
+			totp: TOTP;
 			computedCode: string;
 			timeLeft: number;
 		};
@@ -25,25 +26,13 @@
 	const codes = data.totpCodes;
 
 	let timerId;
-	let totpSecondsLeft = $state(0);
 
 	const computeOTP = () => {
 		codes.forEach(async (code) => {
 			const totp = generateTOTP(code.username, code.secret);
-			const mapped = otpMap[code.secret];
-			if (!mapped || (mapped && mapped.timeLeft <= 0)) {
-				otpMap[code.secret] = { computedCode: totp.generate(), timeLeft: TIME_STEP };
-				return;
-			}
-			mapped.timeLeft = parseInt(localStorage.getItem('timeRemaining') || '30');
-		});
-	};
-
-	const decreaseTime = () => {
-		codes.forEach((code) => {
-			if (otpMap[code.secret]) {
-				otpMap[code.secret].timeLeft -= 1;
-			}
+			const timeLeft = computeTimeLeft(totp);
+			otpMap[code.secret] = { totp, computedCode: totp.generate(), timeLeft };
+			return;
 		});
 	};
 
@@ -52,18 +41,10 @@
 	};
 
 	onMount(async () => {
-		totpSecondsLeft = parseInt(localStorage.getItem('timeRemaining') || '30');
-
 		computeOTP();
 
 		timerId = setInterval(() => {
-			totpSecondsLeft -= 1;
-			decreaseTime();
-			if (totpSecondsLeft <= 0) {
-				totpSecondsLeft = TIME_STEP;
-				computeOTP();
-			}
-			localStorage.setItem('timeRemaining', totpSecondsLeft.toString());
+			computeOTP();
 		}, 1000);
 	});
 
@@ -91,8 +72,10 @@
 					<span class="text-gray-700">{otpMap[code.secret]?.computedCode || 'loading...'}</span>
 					<buttons-group class="flex space-x-1">
 						<form method="post" action="?/deleteCode">
-							<input value={code.id} name="secretId" hidden>
-							<button class="rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600">Delete</button>
+							<input value={code.id} name="secretId" hidden />
+							<button class="rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600"
+								>Delete</button
+							>
 						</form>
 						<button
 							onclick={() => navigator.clipboard.writeText(otpMap[code.secret]?.computedCode)}
@@ -105,11 +88,11 @@
 						<div class="absolute h-full w-full bg-gray-300"></div>
 						<div
 							class={`absolute h-full bg-blue-500`}
-							style="width: {computeProgressBarVal(totpSecondsLeft)}%"
+							style="width: {computeProgressBarVal(otpMap[code.secret]?.timeLeft)}%"
 						></div>
 					</div>
 					<p class="mt-2 text-sm text-gray-700">
-						Next code update in {totpSecondsLeft} seconds
+						Next code update in {otpMap[code.secret]?.timeLeft} seconds
 					</p>
 				</timer>
 			</li>

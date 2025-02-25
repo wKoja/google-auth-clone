@@ -15,10 +15,10 @@ export function generateTOTP(label: string | null, secret: string): OTPAuth.TOTP
   return totp;
 }
 
-export function computeTimeLeft(creationTime: number) {
+export function computeTimeLeft(totp: OTPAuth.TOTP) {
   const currentTime = computeNow();
-  const elapsedTime = Math.floor(( currentTime - creationTime / 1000 ));
-  return TIME_STEP - elapsedTime;
+  const elapsedTime = totp.period - currentTime % totp.period;
+  return elapsedTime;
 }
 
 async function createHmac(keyData: string, data: Uint8Array): Promise<ArrayBuffer> {
