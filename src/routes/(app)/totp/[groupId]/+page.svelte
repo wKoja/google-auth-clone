@@ -10,8 +10,8 @@
 
 	interface OTPMap {
 		[key: string]: {
-			totp: TOTP;
-			creationTimestamp: number;
+			computedCode: string;
+			timeLeft: number;
 		};
 	}
 
@@ -30,7 +30,20 @@
 	const computeOTP = () => {
 		codes.forEach(async (code) => {
 			const totp = generateTOTP(code.username, code.secret);
-			otpMap[code.secret] = { totp, creationTimestamp: Date.now() };
+			const mapped = otpMap[code.secret];
+			if (!mapped || (mapped && mapped.timeLeft <= 0)) {
+				otpMap[code.secret] = { computedCode: totp.generate(), timeLeft: TIME_STEP };
+				return;
+			}
+			mapped.timeLeft = parseInt(localStorage.getItem('timeRemaining') || '30');
+		});
+	};
+
+	const decreaseTime = () => {
+		codes.forEach((code) => {
+			if (otpMap[code.secret]) {
+				otpMap[code.secret].timeLeft -= 1;
+			}
 		});
 	};
 
@@ -39,15 +52,16 @@
 	};
 
 	onMount(async () => {
-		totpSecondsLeft = parseInt(localStorage.getItem('timeRemaining') || '30'); 
+		totpSecondsLeft = parseInt(localStorage.getItem('timeRemaining') || '30');
 
 		computeOTP();
 
 		timerId = setInterval(() => {
 			totpSecondsLeft -= 1;
+			decreaseTime();
 			if (totpSecondsLeft <= 0) {
 				totpSecondsLeft = TIME_STEP;
-				computeOTP()
+				computeOTP();
 			}
 			localStorage.setItem('timeRemaining', totpSecondsLeft.toString());
 		}, 1000);
@@ -74,8 +88,11 @@
 			<li class="mb-2">
 				<h1 class="text-bold text-2xl text-gray-700">{code.username}</h1>
 				<div class="flex items-center justify-between rounded-md bg-white p-4 shadow">
-					<span class="text-gray-700">{otpMap[code.secret]?.totp.generate() || 'loading...'}</span>
-					<button class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Copy</button>
+					<span class="text-gray-700">{otpMap[code.secret]?.computedCode || 'loading...'}</span>
+					<button
+						onclick={() => navigator.clipboard.writeText(otpMap[code.secret]?.computedCode)}
+						class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Copy</button
+					>
 				</div>
 				<timer class="mt-4 w-full max-w-md">
 					<div class="relative h-2 max-w-xl overflow-hidden rounded-full">
