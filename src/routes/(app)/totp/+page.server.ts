@@ -1,7 +1,7 @@
 import * as auth from '$lib/server/auth.js';
 import type { TOTPGroup } from '$lib/server/db/schema';
-import { fetchTOTPGroups } from '$lib/server/totp';
-import { redirect } from '@sveltejs/kit';
+import { deleteTOTPGroup, fetchTOTPGroups } from '$lib/server/totp';
+import { redirect, type Actions } from '@sveltejs/kit';
 
 export const load = async (event) => {
   const sessionToken = event.cookies.get(auth.sessionCookieName);
@@ -16,3 +16,15 @@ export const load = async (event) => {
     totpGroups: totpGrops
   };
 };
+
+export const actions: Actions = {
+  deleteGroup: async (event) => {
+    const formData = await event.request.formData();
+    const sessionToken = event.cookies.get(auth.sessionCookieName);
+    const groupId = formData.get('groupId')?.toString();
+
+    deleteTOTPGroup(sessionToken, groupId);
+
+    return redirect(302, `/totp`);
+  }
+}

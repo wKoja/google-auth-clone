@@ -26,10 +26,17 @@
 			<li class="mb-2">
 				<div class="flex items-center justify-between rounded-md bg-white p-4 shadow">
 					<span class="text-gray-700">{group.name}</span>
-					<button
-						onclick={() => routeToGroup(group.id)}
-						class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Open</button
-					>
+					<buttons-group class="flex space-x-1">
+						<form method="post" action="?/deleteGroup">
+							<input value={group.id} name="groupId" hidden>
+							<button class="rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600">Delete</button>
+						</form>
+						<button
+							onclick={() => routeToGroup(group.id)}
+							class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Open</button
+						>
+
+					</buttons-group>
 				</div>
 			</li>
 		{/each}

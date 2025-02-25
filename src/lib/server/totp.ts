@@ -178,6 +178,33 @@ export async function fetchTOTPGroupById(
   return result;
 }
 
+export async function deleteTOTPGroup(
+  sessionToken: string | undefined,
+  groupId: string | undefined
+) {
+  if (!sessionToken) {
+    errorLog('deleteTOTPGroup', 'session token not found');
+    return;
+  }
+
+  if (!groupId) {
+    errorLog('deleteTOTPGroup', 'group id not found');
+    return;
+  }
+
+  const sessionInfo = await validateSessionToken(sessionToken);
+  const user = sessionInfo.user;
+
+  if (!user) {
+    errorLog('deleteTOTPGroup', 'user not found');
+    return;
+  }
+
+  infoLog('deleteTOTPGroup', `Deleting TOTP group ${groupId} and its secrets for user ${user.id}`);
+  await db.delete(table.totpSecret).where(eq(table.totpSecret.totpGroupId, groupId));
+  await db.delete(table.totpGroup).where(eq(table.totpGroup.id, groupId));
+}
+
 function generateId() {
   // ID with 120 bits of entropy, or about the same as UUID v4.
   const bytes = crypto.getRandomValues(new Uint8Array(15));
