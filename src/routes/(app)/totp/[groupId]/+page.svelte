@@ -9,7 +9,10 @@
 	}
 
 	interface OTPMap {
-		[key: string]: TOTP;
+		[key: string]: {
+			totp: TOTP;
+			creationTimestamp: number;
+		};
 	}
 
 	let { data }: Props = $props();
@@ -29,7 +32,7 @@
 	const computeOTP = () => {
 		codes.forEach(async (code) => {
 			const totp = generateTOTP(code.username, code.secret);
-			otpMap[code.secret] = totp;
+			otpMap[code.secret] = {totp, creationTimestamp: Date.now()};
 			console.log('totp changed', otpMap)
 		});
 		console.log(otpMap);
@@ -40,7 +43,7 @@
 	};
 
 	onMount(async () => {
-		totpSecondsLeft = computeTimeLeft();
+		totpSecondsLeft = computeTimeLeft(otpMap[codes[0].secret]?.creationTimestamp);
 
 		computeOTP();
 
@@ -54,8 +57,7 @@
 			} else {
 				totpSecondsLeft -= 1;
 			}
-			console.log('totpSeconds', totpSecondsLeft);
-			console.log('progressBar', progressBarVal);
+			console.log(totpSecondsLeft)
 		}, 1000);
 	});
 
@@ -78,21 +80,21 @@
 		href={`/totp/${groupId}/add-code`}
 		class="rounded bg-blue-500 px-3 py-3 text-white hover:bg-blue-600">Add new code</a
 	>
-	<timer class="mt-4 w-full max-w-md">
-		<div class="relative h-2 max-w-xl overflow-hidden rounded-full">
-			<div class="absolute h-full w-full bg-gray-300"></div>
-			<div class={`absolute h-full bg-blue-500`} style="width: {progressBarVal}%"></div>
-		</div>
-		<p class="mt-2 text-sm text-gray-700">Next code update in {totpSecondsLeft} seconds</p>
-	</timer>
 	<ul class="mt-4 w-full max-w-md">
 		{#each codes as code}
 			<li class="mb-2">
 				<h1 class="text-bold text-2xl text-gray-700">{code.username}</h1>
 				<div class="flex items-center justify-between rounded-md bg-white p-4 shadow">
-					<span class="text-gray-700">{otpMap[code.secret]?.generate() || 'loading...'}</span>
+					<span class="text-gray-700">{otpMap[code.secret]?.totp.generate() || 'loading...'}</span>
 					<button class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Copy</button>
 				</div>
+			<timer class="mt-4 w-full max-w-md">
+				<div class="relative h-2 max-w-xl overflow-hidden rounded-full">
+					<div class="absolute h-full w-full bg-gray-300"></div>
+					<div class={`absolute h-full bg-blue-500`} style="width: {progressBarVal}%"></div>
+				</div>
+				<p class="mt-2 text-sm text-gray-700">Next code update in {totpSecondsLeft} seconds</p>
+			</timer>
 			</li>
 		{/each}
 	</ul>

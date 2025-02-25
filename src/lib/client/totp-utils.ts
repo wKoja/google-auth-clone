@@ -1,4 +1,4 @@
-import * as OTPAuth from 'otpauth'
+import * as OTPAuth from 'otpauth';
 
 const TIME_STEP = 30;
 
@@ -15,10 +15,10 @@ export function generateTOTP(label: string | null, secret: string): OTPAuth.TOTP
   return totp;
 }
 
-export function computeTimeLeft() {
-  const currentTime = computeNow()
-  const elapsedTime = currentTime % TIME_STEP
-  return TIME_STEP - elapsedTime
+export function computeTimeLeft(creationTime: number) {
+  const currentTime = computeNow();
+  const elapsedTime = Math.floor(( currentTime - creationTime / 1000 ));
+  return TIME_STEP - elapsedTime;
 }
 
 async function createHmac(keyData: string, data: Uint8Array): Promise<ArrayBuffer> {
@@ -51,15 +51,13 @@ function truncate(hash: ArrayBuffer): number {
   return binary;
 }
 
-
 export function computeNow() {
   return Math.floor(Date.now() / 1000);
 }
 
 export function progressBar(seconds: number) {
-  return Math.floor((seconds / (TIME_STEP)) * 100);
+  return Math.floor((seconds / TIME_STEP) * 100);
 }
-
 
 export function computeCounter() {
   const currentTime = computeNow();
