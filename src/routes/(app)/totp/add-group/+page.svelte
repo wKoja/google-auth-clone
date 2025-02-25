@@ -1,6 +1,10 @@
 <script lang="ts">
 </script>
 
+<a
+	href={`/totp`}
+	class="absolute rounded bg-blue-500 m-4 px-3 py-3 text-white hover:bg-blue-600">Return to groups</a
+>
 <div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
   <h1 class="text-2xl font-bold text-gray-800">Add New TOTP Group</h1>
   <form method="post" action="?/add" class="w-full max-w-sm mt-4">

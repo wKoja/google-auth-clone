@@ -13,6 +13,10 @@ export const load = async (event: RequestEvent) => {
 
   const totpGroup = await fetchTOTPGroupById(sessionToken, groupId);
 
+  if (!totpGroup) {
+    return redirect(302, '/totp');
+  }
+
   const totpCodes = await fetchTOTPSecretsByGroupId(sessionToken, groupId);
 
   return {

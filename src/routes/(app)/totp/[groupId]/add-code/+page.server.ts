@@ -2,6 +2,13 @@ import { fail, redirect, type Actions } from '@sveltejs/kit';
 import * as auth from '$lib/server/auth.js';
 import { saveTOTPSecret } from '$lib/server/totp';
 
+export const load = async (event) => {
+  const groupId: string = event.params.groupId;
+  return {
+    groupId
+  };
+}
+
 export const actions: Actions = {
   add: async (event) => {
     const groupId = event.params.groupId;
@@ -22,6 +29,6 @@ export const actions: Actions = {
     saveTOTPSecret(sessionToken, secret, note || null, username, groupId || null)
 
 
-    return redirect(302, `/totp`);
+    return redirect(302, `/totp/${groupId}`);
   }
 };

@@ -39,10 +39,14 @@
 	});
 </script>
 
+<a
+	href={`/totp`}
+	class="absolute rounded bg-blue-500 m-4 px-3 py-3 text-white hover:bg-blue-600">Return to groups</a
+>
 <div class="flex min-h-screen flex-col items-center justify-center bg-gray-100">
 	<h1 class="text-2xl font-bold text-gray-800">{groupName} 2FA codes</h1>
 	<a
-		href={`/totp/${groupId}/add`}
+		href={`/totp/${groupId}/add-code`}
 		class="rounded bg-blue-500 px-3 py-3 text-white hover:bg-blue-600">Add new code</a
 	>
 	<ul class="mt-4 w-full max-w-md">
