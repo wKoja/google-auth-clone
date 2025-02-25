@@ -12,7 +12,6 @@
 		[key: string]: {
 			totp: TOTP;
 			creationTimestamp: number;
-			timeRemaining: number;
 		};
 	}
 
@@ -25,17 +24,14 @@
 	const groupName = data.totpGroup?.name;
 	const codes = data.totpCodes;
 
-	let intervalId;
 	let timerId;
 	let totpSecondsLeft = $state(0);
 
 	const computeOTP = () => {
 		codes.forEach(async (code) => {
 			const totp = generateTOTP(code.username, code.secret);
-			otpMap[code.secret] = { totp, creationTimestamp: Date.now(), timeRemaining: TIME_STEP };
-			console.log('totp changed', otpMap);
+			otpMap[code.secret] = { totp, creationTimestamp: Date.now() };
 		});
-		console.log(otpMap);
 	};
 
 	const computeProgressBarVal = (secondsLeft: number) => {
@@ -43,24 +39,21 @@
 	};
 
 	onMount(async () => {
-		totpSecondsLeft = computeTimeLeft(otpMap[codes[0].secret]?.creationTimestamp);
+		totpSecondsLeft = parseInt(localStorage.getItem('timeRemaining') || '30'); 
 
 		computeOTP();
 
-		intervalId = setInterval(computeOTP, TIME_STEP * 1000);
-
 		timerId = setInterval(() => {
-			codes.forEach((code) => {
-				const timeRemaining = otpMap[code.secret]?.timeRemaining;
-				otpMap[code.secret].timeRemaining = timeRemaining - 1;
-			});
+			totpSecondsLeft -= 1;
+			if (totpSecondsLeft <= 0) {
+				totpSecondsLeft = TIME_STEP;
+				computeOTP()
+			}
+			localStorage.setItem('timeRemaining', totpSecondsLeft.toString());
 		}, 1000);
 	});
 
 	onDestroy(() => {
-		if (intervalId) {
-			clearInterval(intervalId);
-		}
 		if (timerId) {
 			clearInterval(timerId);
 		}
@@ -89,11 +82,11 @@
 						<div class="absolute h-full w-full bg-gray-300"></div>
 						<div
 							class={`absolute h-full bg-blue-500`}
-							style="width: {computeProgressBarVal(otpMap[code.secret]?.timeRemaining)}%"
+							style="width: {computeProgressBarVal(totpSecondsLeft)}%"
 						></div>
 					</div>
 					<p class="mt-2 text-sm text-gray-700">
-						Next code update in {otpMap[code.secret]?.timeRemaining} seconds
+						Next code update in {totpSecondsLeft} seconds
 					</p>
 				</timer>
 			</li>
