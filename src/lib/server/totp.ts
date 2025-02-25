@@ -5,8 +5,6 @@ import { validateSessionToken } from './auth';
 import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { errorLog, infoLog } from '$lib/logger';
 
-//NOTE: private functions
-
 export async function saveTOTPSecret(
   sessionToken: string | undefined,
   secret: string,
@@ -64,6 +62,33 @@ export async function fetchTOTPSecretsByGroupId(
     .where(
       and(eq(table.totpSecret.totpGroupId, groupId || ''), eq(table.totpSecret.userId, user.id))
     );
+}
+
+export async function deleteTOTPSecret(
+  sessionToken: string | undefined,
+  secretId: string | undefined
+) {
+  if (!sessionToken) {
+    errorLog('deleteTOTPSecret', 'session token not found');
+    return;
+  }
+
+  if (!secretId) {
+    errorLog('deleteTOTPSecret', 'secret id not found');
+    return;
+  }
+
+  const sessionInfo = await validateSessionToken(sessionToken);
+  const user = sessionInfo.user;
+
+  if (!user) {
+    errorLog('deleteTOTPSecret', 'user not found');
+    return;
+  }
+
+  infoLog('deleteTOTPSecret', `Deleting TOTP secret ${secretId} for user ${user.id}`);
+
+  await db.delete(table.totpSecret).where(eq(table.totpSecret.id, secretId));
 }
 
 export async function saveTOTPGroup(sessionToken: string | undefined, name: string) {

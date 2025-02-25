@@ -89,10 +89,16 @@
 				<h1 class="text-bold text-2xl text-gray-700">{code.username}</h1>
 				<div class="flex items-center justify-between rounded-md bg-white p-4 shadow">
 					<span class="text-gray-700">{otpMap[code.secret]?.computedCode || 'loading...'}</span>
-					<button
-						onclick={() => navigator.clipboard.writeText(otpMap[code.secret]?.computedCode)}
-						class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Copy</button
-					>
+					<buttons-group class="flex space-x-1">
+						<form method="post" action="?/deleteCode">
+							<input value={code.id} name="secretId" hidden>
+							<button class="rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600">Delete</button>
+						</form>
+						<button
+							onclick={() => navigator.clipboard.writeText(otpMap[code.secret]?.computedCode)}
+							class="rounded bg-blue-500 px-3 py-1 text-white hover:bg-blue-600">Copy</button
+						>
+					</buttons-group>
 				</div>
 				<timer class="mt-4 w-full max-w-md">
 					<div class="relative h-2 max-w-xl overflow-hidden rounded-full">
