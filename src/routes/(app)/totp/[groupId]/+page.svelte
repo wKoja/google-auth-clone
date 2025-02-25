@@ -71,6 +71,12 @@
 				<div class="flex items-center justify-between rounded-md bg-white p-4 shadow">
 					<span class="text-gray-700">{otpMap[code.secret]?.computedCode || 'loading...'}</span>
 					<buttons-group class="flex space-x-1">
+						<form method="post" action="?/shareCode">
+							<input value={code.id} name="secretId" hidden />
+							<button class="rounded bg-green-500 px-3 py-1 text-white hover:bg-green-600"
+								>Share</button
+							>
+						</form>
 						<form method="post" action="?/deleteCode">
 							<input value={code.id} name="secretId" hidden />
 							<button class="rounded bg-red-500 px-3 py-1 text-white hover:bg-red-600"

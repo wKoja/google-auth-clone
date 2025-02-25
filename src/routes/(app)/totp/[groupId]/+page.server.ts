@@ -1,7 +1,7 @@
 import type { RequestEvent } from './$types';
 import * as auth from '$lib/server/auth.js';
 import { redirect, type Actions } from '@sveltejs/kit';
-import { fetchTOTPSecretsByGroupId, fetchTOTPGroupById, deleteTOTPSecret } from '$lib/server/totp';
+import { fetchTOTPSecretsByGroupId, fetchTOTPGroupById, deleteTOTPSecret, generateTOTPPublicKey } from '$lib/server/totp';
 
 export const load = async (event: RequestEvent) => {
   const groupId: string = event.params.groupId;
@@ -36,5 +36,15 @@ export const actions: Actions = {
     deleteTOTPSecret(sessionToken, secretId);
 
     return redirect(302, `/totp/${groupId}`);
+  },
+
+  shareCode: async (event) => {
+    const formData = await event.request.formData();
+    const sessionToken = event.cookies.get(auth.sessionCookieName);
+    const secretId = formData.get('secretId')?.toString();
+
+    const publicKey = await generateTOTPPublicKey(sessionToken, secretId);
+
+    return redirect(302, `/totp/public/${publicKey}`);
   }
 }
