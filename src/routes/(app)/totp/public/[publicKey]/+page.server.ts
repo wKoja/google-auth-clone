@@ -11,6 +11,10 @@ export const load = async (event: RequestEvent) => {
 
 	const code = await fetchTOTPByPublicKey(publicKey);
 
+	if (!code) {
+		return redirect(302, '/sign-in');
+	}
+
 	return {
 	  code
 	};
